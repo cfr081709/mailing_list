@@ -2,9 +2,9 @@
   "name": "mailing-list",
   "version": "1.0.0",
   "description": "Simple mailing list app",
-  "main": "src/server/server.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node src/server/server.js"
+    "start": "node src/server.js"
   },
   "dependencies": {
     "express": "^4.21.2"
