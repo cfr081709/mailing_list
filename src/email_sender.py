@@ -1,7 +1,32 @@
 import os
 import smtplib
-import pandas as pd
+from pathlib import Path
 from email.message import EmailMessage
+
+from dotenv import load_dotenv
+from mysql.connector import Error, connect
+
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+
+
+def get_recipients():
+    host = os.getenv("DB_HOST", "localhost")
+    user = os.getenv("DB_USER", "root")
+    password = os.getenv("DB_PASSWORD", "")
+    database = os.getenv("DB_NAME", "mailing_list")
+
+    connection = None
+    try:
+        connection = connect(host=host, user=user, password=password, database=database)
+        cursor = connection.cursor()
+        cursor.execute("SELECT email FROM emails")
+        rows = cursor.fetchall()
+        return [email for (email,) in rows if email]
+    except Error as exc:
+        raise RuntimeError(f"MySQL error: {exc}") from exc
+    finally:
+        if connection and connection.is_connected():
+            connection.close()
 
 
 def send_email():
@@ -11,22 +36,10 @@ def send_email():
     if not sender or not password:
         raise RuntimeError("Set EMAIL_SENDER and EMAIL_PASSWORD environment variables first.")
 
-    csv_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'emails.csv')
-    with open(csv_path, 'r', encoding='utf-8') as handle:
-        rows = [line.strip() for line in handle if line.strip()]
-
-    if not rows:
-        raise ValueError("CSV file is empty.")
-
-    if rows[0].lower().startswith('email'):
-        recipients = [row.split(',')[0].strip().strip('"') for row in rows[1:]]
-    else:
-        recipients = [row.split(',')[0].strip().strip('"') for row in rows]
-
-    recipients = [recipient for recipient in recipients if recipient]
+    recipients = get_recipients()
 
     if not recipients:
-        raise ValueError("No email addresses were found in the CSV file.")
+        raise ValueError("No email addresses were found in the database.")
 
     for recipient in recipients:
         recipient = str(recipient).strip()

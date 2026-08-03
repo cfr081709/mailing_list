@@ -7,6 +7,20 @@
     "start": "node src/server.js"
   },
   "dependencies": {
-    "express": "^4.21.2"
-  }
+    "dotenv": "^17.4.2",
+    "express": "^4.21.2",
+    "mysql2": "^3.23.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cfr081709/mailing_list.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/cfr081709/mailing_list/issues"
+  },
+  "homepage": "https://github.com/cfr081709/mailing_list#readme"
 }
